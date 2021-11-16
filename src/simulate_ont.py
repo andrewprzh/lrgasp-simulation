@@ -49,7 +49,6 @@ def simulate_ont(args, read_count=1000):
                              "-b", "guppy",
                              "-o", os.path.join(args.output, "ONT.simulated"),
                              "-n", str(read_count),
-                             "--fastq",
                              "-c", model_pref + 'training',
                              "-r", molecule_type, "--no_model_ir"]
     if uracil:
