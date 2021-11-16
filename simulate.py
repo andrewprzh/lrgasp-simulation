@@ -39,6 +39,8 @@ def parse_args(args=None, namespace=None):
                         help='Add background noise reads (Illumina and ONT only), proportion defined by the models')
     parser.add_argument('--keep_isoform_ids', action='store_true', default=False,
                         help='keep origin isoform ids in read names (long reads only)')
+    parser.add_argument("--no_polya", help="do not insert poly-A tails", action="store_false", default=True)
+
     args = parser.parse_args(args, namespace)
 
     if os.path.exists(args.output):
@@ -59,6 +61,8 @@ def parse_args(args=None, namespace=None):
     if not check_params(args):
         parser.print_usage()
         exit(-1)
+    args.polya = not args.no_polya
+
     return args
 
 

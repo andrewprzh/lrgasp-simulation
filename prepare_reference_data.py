@@ -37,11 +37,14 @@ def parse_args(args=None, namespace=None):
     parser.add_argument("--isoform_list", "-l", help="insert only novel isoforms from a given file", type=str)
     parser.add_argument("--seed", "-s", help="randomizer seed [11]", default=11, type=int)
 
+    parser.add_argument("--no_polya", help="do not insert poly-A tails", action="store_false", default=True)
+
     args = parser.parse_args(args, namespace)
 
     if not check_params(args):
         parser.print_usage()
         exit(-1)
+    args.polya = not args.no_polya
     return args
 
 
@@ -203,7 +206,7 @@ def parse_transcript(gtf_fragment):
     return chr_id, strand, sorted(exons)
 
 
-def extract_transcript_from_fasta(chr_seq, strand, exons):
+def extract_transcript_from_fasta(chr_seq, strand, exons, polya=True):
     transcript = ""
     for e in exons:
         transcript += str(chr_seq[e[0]-1:e[1]].seq)
@@ -211,7 +214,8 @@ def extract_transcript_from_fasta(chr_seq, strand, exons):
     if strand == '-':
         transcript = str(Seq(transcript).reverse_complement()).upper()
 
-    transcript += "A" * POLYA_LEN
+    if polya:
+        transcript += "A" * POLYA_LEN
     return transcript
 
 
@@ -230,12 +234,15 @@ def insert_novel_transcripts_to_fasta(args, novel_annotation):
     for chr_id in genomic_regions:
         chr_seq = genome_records[chr_id]
         for transcript_tuple in genomic_regions[chr_id]:
-            transcript_seq = extract_transcript_from_fasta(chr_seq, transcript_tuple[1], transcript_tuple[2])
+            transcript_seq = extract_transcript_from_fasta(chr_seq, transcript_tuple[1], transcript_tuple[2], args.polya)
             record = SeqRecord(Seq(transcript_seq), id=modify_isofrom_id(transcript_tuple[0]), description="novel")
             new_transcripts.append(record)
 
     for record in SeqIO.parse(args.reference_transcripts, "fasta"):
-        record.seq = Seq(str(record.seq) + "A" * POLYA_LEN)
+        if args.polya:
+            record.seq = Seq(str(record.seq) + "A" * POLYA_LEN)
+        else:
+            record.seq = Seq(str(record.seq))
         new_transcripts.append(record)
 
     SeqIO.write(new_transcripts, args.output + ".transcripts.fasta", 'fasta')
