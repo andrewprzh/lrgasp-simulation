@@ -15,19 +15,21 @@ def simulate_pacbio(args, read_count=1000):
     isoseqsim = os.path.join(src_path, "isoseqsim/bin/isoseqsim.py")
     param_dir = os.path.join(src_path, "isoseqsim/utilities/")
     ref_prefix = args.reference_prefix
-    keep_isoforom_ids = '--keep_isoform_ids' if args.keep_isoform_ids else ''
-    polya_opt = "--polya" if args.polya else ""
     read_num = str(read_count / 1000000.0)
-
-    result = subprocess.run([isoseqsim, "--cpu", str(args.threads), "--tempdir", args.tmp_dir,
+    cmd_list = [isoseqsim, "--cpu", str(args.threads), "--tempdir", args.tmp_dir,
                              "--annotation", ref_prefix + ".annotation.gtf",
                              "--genome", ref_prefix + ".genome.fasta", "--expr", args.counts,
                              "--c5", os.path.join(param_dir, "5_end_completeness.PacBio-Sequel.tab"),
                              "--c3", os.path.join(param_dir, "3_end_completeness.PacBio-Sequel.tab"),
                              "--es", "0.004", "--ei", "0.006", "--ed", "0.006",
-                             "--read_number", read_num, '--polya',
+                             "--read_number", read_num,
                              "--transcript", os.path.join(args.output, "PacBio.simulated.tsv"),
-                             "-o", os.path.join(args.output, "PacBio.simulated")])
+                             "-o", os.path.join(args.output, "PacBio.simulated")]
+    if args.polya:
+        cmd_list.append("--polya")
+    if args.keep_isoform_ids:
+        cmd_list.append("--keep_isoform_ids")
+    result = subprocess.run(cmd_list)
 
     if result.returncode != 0:
         logger.error("IsoSeqSim failed, contact developers for support.")
