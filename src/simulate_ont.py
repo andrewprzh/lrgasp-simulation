@@ -74,19 +74,19 @@ def simulate_ont(args, read_count=1000):
     df = df[['tid', 'nanosim_tid']]
 
     read_tid_map = {}
-    fastqs = [os.path.join(args.output, "ONT.simulated_aligned_reads.fastq")]
+    fastqs = [os.path.join(args.output, "ONT.simulated_aligned_reads.fasta")]
     if args.noise_reads:
-        fastqs.append(os.path.join(args.output, "ONT.simulated_unaligned_reads.fastq"))
+        fastqs.append(os.path.join(args.output, "ONT.simulated_unaligned_reads.fasta"))
     read_num = 0
     # dump everythin the same file
-    fname = os.path.join(args.output, 'ONT.simulated.fastq')
+    fname = os.path.join(args.output, 'ONT.simulated.fasta')
     ofile = open(fname, 'w')
 
     logger.info("Renaming and counting ONT reads...")
     for f in fastqs:
         ifile = open(f, 'r')
         for line in ifile:
-            if line.startswith('@'):
+            if line.startswith('>'):
 
                 # get transcript id from each simulated read
                 tid = line[1:]
