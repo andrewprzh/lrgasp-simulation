@@ -37,7 +37,7 @@ def parse_args(args=None, namespace=None):
     parser.add_argument("--isoform_list", "-l", help="insert only novel isoforms from a given file", type=str)
     parser.add_argument("--seed", "-s", help="randomizer seed [11]", default=11, type=int)
 
-    parser.add_argument("--no_polya", help="do not insert poly-A tails", action="store_false", default=True)
+    parser.add_argument("--no_polya", help="do not insert poly-A tails", action="store_true", default=False)
 
     args = parser.parse_args(args, namespace)
 
