@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 @author: Chen Yang & Saber HafezQorani
 This script generates simulated Oxford Nanopore 2D reads (genomic and transcriptomic - cDNA/directRNA).

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # NOTE: this file was modified by the LRGASP consortium comparing to the original IsoSeqSim source code
 # Contributor: Andrey Prjibelski
