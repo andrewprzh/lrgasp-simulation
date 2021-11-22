@@ -30,6 +30,8 @@ def parse_args(args=None, namespace=None):
     parser.add_argument("--reference_annotation", "-a", help="reference annotation (GTF/.db)", type=str)
     parser.add_argument("--reference_transcripts", "-t", help="reference transcripts in FASTA format", type=str)
     parser.add_argument("--reference_genome", "-g", help="reference genome in FASTA format", type=str)
+    parser.add_argument("--reference_list", "-l", help="file with reference genomes and annotations, tab-separated, one per line", type=str)
+
     parser.add_argument("--sqanti_prefix", "-q", help="path to SQANTI output "
                                                       "(_classification.txt and _corrected.gtf are needed)", type=str)
     parser.add_argument("--n_random_isoforms", "-n", help="insert this number of random novel isoforms into the annotation",
@@ -51,7 +53,7 @@ def parse_args(args=None, namespace=None):
 def check_params(args):
     if args.n_random_isoforms is not None and args.isoform_list is not None:
         logger.warning("Both --n_random_isoforms and --isoform_list are provided, only ones from the list will be used")
-    return args.reference_annotation is not None and args.reference_transcripts is not None
+    return args.reference_list is not None or (args.reference_annotation is not None and args.reference_transcripts is not None)
 
 
 def replace_gene_isoform_id(l, new_gene_id, new_transcript_id):
@@ -124,7 +126,7 @@ def select_sqanti_isoforms(args):
     current_transcript_entry = ""
     current_transcrtip_id = ""
 
-    for l in open(args.sqanti_prefix + "_corrected.gtf"):
+    for l in open(args.sqanti_prefix + "reference_list_corrected.gtf"):
         tokens = l.strip().split()
         enrty_type = tokens[2]
 
@@ -262,14 +264,18 @@ def set_logger(logger_instance):
 def run_pipeline(args):
     logger.info(" === LRGASP reference data preparation started === ")
     random.seed(args.seed)
-    if args.sqanti_prefix is not None:
-        novel_annotation = select_sqanti_isoforms(args)
+    if args.reference_list:
+        # metagenomic mode
+        pass
     else:
-        novel_annotation = defaultdict(list)
-    gene_db = load_gene_db(args)
-    insert_novel_transcripts_to_gtf(args, gene_db, novel_annotation)
-    insert_novel_transcripts_to_fasta(args, novel_annotation)
-    shutil.copyfile(args.reference_genome, args.output + ".genome.fasta")
+        if args.sqanti_prefix is not None:
+            novel_annotation = select_sqanti_isoforms(args)
+        else:
+            novel_annotation = defaultdict(list)
+        gene_db = load_gene_db(args)
+        insert_novel_transcripts_to_gtf(args, gene_db, novel_annotation)
+        insert_novel_transcripts_to_fasta(args, novel_annotation)
+        shutil.copyfile(args.reference_genome, args.output + ".genome.fasta")
     logger.info("Reference genomes save to %s" % (args.output + ".genome.fasta")) 
     logger.info(" === LRGASP reference data preparation finished === ")
 
