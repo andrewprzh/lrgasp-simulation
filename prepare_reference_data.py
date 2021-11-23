@@ -34,7 +34,7 @@ def parse_args(args=None, namespace=None):
     parser.add_argument("--reference_annotation", "-a", help="reference annotation (GTF/.db)", type=str)
     parser.add_argument("--reference_transcripts", "-t", help="reference transcripts in FASTA format", type=str)
     parser.add_argument("--reference_genome", "-g", help="reference genome in FASTA format", type=str)
-    parser.add_argument("--reference_list", "-l", help="file with reference genomes and annotations, tab-separated, one per line", type=str)
+    parser.add_argument("--reference_list", "-r", help="file with reference genomes and annotations, tab-separated, one per line", type=str)
     parser.add_argument("--mutation_rate", help="mutation rate, none by default", type=float, default=0.0)
 
     parser.add_argument("--sqanti_prefix", "-q", help="path to SQANTI output "

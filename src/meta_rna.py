@@ -61,7 +61,7 @@ def combine_references(reference_list, output_prefix):  # in 'data' insert your 
 
 def extract_transcripts(genome_path, annotation_path, transcripts_path):
     logger.info("Extracting transcripts")
-    res = subprocess.run(['gffread', '-w', transcripts_path, '-r', genome_path, annotation_path])
+    res = subprocess.run(['gffread', '-w', transcripts_path, '-g', genome_path, annotation_path])
     if res.returncode != 0:
         logger.error("gffread failed, contact developers for support.")
         return
