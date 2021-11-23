@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # ############################################################################
 # Copyright (c) 2020 LRGASP consortium
@@ -18,6 +18,10 @@ from collections import defaultdict
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
+from src.infer_snps import *
+from src.meta_rna import *
+
+
 logger = logging.getLogger('LRGASP')
 
 POLYA_LEN = 100
@@ -31,6 +35,7 @@ def parse_args(args=None, namespace=None):
     parser.add_argument("--reference_transcripts", "-t", help="reference transcripts in FASTA format", type=str)
     parser.add_argument("--reference_genome", "-g", help="reference genome in FASTA format", type=str)
     parser.add_argument("--reference_list", "-l", help="file with reference genomes and annotations, tab-separated, one per line", type=str)
+    parser.add_argument("--mutation_rate", help="mutation rate, none by default", type=float, default=0.0)
 
     parser.add_argument("--sqanti_prefix", "-q", help="path to SQANTI output "
                                                       "(_classification.txt and _corrected.gtf are needed)", type=str)
@@ -261,12 +266,23 @@ def set_logger(logger_instance):
     logger_instance.addHandler(ch)
 
 
+def mutate_genome(args):
+    orig_genome_path = args.output + '.genomes.fasta'
+    orig_annotation_path = args.output + '.annotations.gtf'
+    genome_path = args.output + '.mutated.genomes.fasta'
+    annotation_path = args.output + '.mutated.annotations.gtf'
+    transcripts_path = args.output + '.mutated.transcrips.fasta'
+    insert_mutations(args, orig_genome_path, genome_path)
+    shutil.copyfile(orig_annotation_path, annotation_path)
+    extract_transcripts(genome_path, annotation_path, transcripts_path)
+
+
 def run_pipeline(args):
     logger.info(" === LRGASP reference data preparation started === ")
     random.seed(args.seed)
     if args.reference_list:
         # metagenomic mode
-        pass
+        combine_references(args.reference_list, args.output)
     else:
         if args.sqanti_prefix is not None:
             novel_annotation = select_sqanti_isoforms(args)
@@ -276,6 +292,10 @@ def run_pipeline(args):
         insert_novel_transcripts_to_gtf(args, gene_db, novel_annotation)
         insert_novel_transcripts_to_fasta(args, novel_annotation)
         shutil.copyfile(args.reference_genome, args.output + ".genome.fasta")
+
+    if args.mutation_rate > 0.0:
+        mutate_genome(args)
+
     logger.info("Reference genomes save to %s" % (args.output + ".genome.fasta")) 
     logger.info(" === LRGASP reference data preparation finished === ")
 

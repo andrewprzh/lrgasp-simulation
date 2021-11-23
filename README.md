@@ -28,8 +28,11 @@ The pipeline consists of main 3 steps:
 - numpy
 - scipy
 - pandas
+- bcbio-gff
+- vcfpy
 - minimap2
-- [NanoSim requirements](https://github.com/bcgsc/NanoSim) 
+- gffread
+- [NanoSim requirements](https://github.com/bcgsc/NanoSim) Note about sikilearn version!
 - [RSEM requirements](https://github.com/deweylab/RSEM#compilation) (includes C++, R, perl)  
 
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # ############################################################################
 # Copyright (c) 2020 LRGASP consortium
@@ -55,13 +55,16 @@ def combine_references(reference_list, output_prefix):  # in 'data' insert your 
                     annotation_rec.id = annotation_id_list[i]
             GFF.write(gff_records, annotations_output)
 
+    extract_transcripts(genomes_path, annotations_path, transcripts_path)
+    logger.info("Done.")
+
+
+def extract_transcripts(genome_path, annotation_path, transcripts_path):
     logger.info("Extracting transcripts")
-    res = subprocess.run(['gffread', '-w', transcripts_path, '-r', genomes_path, annotations_path])
+    res = subprocess.run(['gffread', '-w', transcripts_path, '-r', genome_path, annotation_path])
     if res.returncode != 0:
         logger.error("gffread failed, contact developers for support.")
         return
-
-    logger.info("Done.")
 
 
 def generate_meta_counts(reference_list, output_prefix):
