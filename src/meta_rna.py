@@ -130,8 +130,6 @@ def generate_gene_counts(total_genes, type=1):
 
 
 def generate_abundances(genome_count, type=1):
-    genome_count = int(input())
-
     if type == 0:
         return numpy.arange(10 / (genome_count + 1), 10, 10 / (genome_count + 1))
 
