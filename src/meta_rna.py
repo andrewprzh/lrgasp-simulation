@@ -10,7 +10,8 @@ import pandas as pd
 from Bio import SeqIO
 import subprocess
 import logging
-
+import numpy
+import random
 
 logger = logging.getLogger('LRGASP')
 
@@ -20,6 +21,7 @@ def combine_references(reference_list, output_prefix):  # in 'data' insert your 
     df.columns = ['genome', 'annotation']
     genome_id_list_without_duplicates = set()
     new_id_map = {}
+    all_genes = []
 
     genomes_path = output_prefix + '.genomes.fasta'
     annotations_path = output_prefix + '.annotations.gtf'
@@ -46,8 +48,15 @@ def combine_references(reference_list, output_prefix):  # in 'data' insert your 
             annotation_path = df['annotation'].iloc[genome]
             annotation_id_list = []
             gff_records = []
+            all_genes.append([])
             for annotation_rec in GFF.parse(annotation_path):
                 annotation_id_list.append(annotation_rec.id)
+                if annotation_rec.type == 'gene':
+                    if 'ID' in annotation_rec.qualifiers:
+                        all_genes[-1].append(annotation_rec.qualifiers['ID'])
+                    elif 'gene_id' in annotation_rec.qualifiers:
+                        all_genes[-1].append(annotation_rec.qualifiers['gene_id'])
+
                 gff_records.append(annotation_rec)
             for i in range(len(annotation_id_list)):
                 if annotation_id_list[i] in new_id_map:  # checks if id in annotation is in dict with replaced id
@@ -65,6 +74,7 @@ def combine_references(reference_list, output_prefix):  # in 'data' insert your 
                 
     extract_transcripts(genomes_path, annotations_path, transcripts_path)
     logger.info("Done.")
+    return all_genes
 
 
 def extract_transcripts(genome_path, annotation_path, transcripts_path):
@@ -75,14 +85,86 @@ def extract_transcripts(genome_path, annotation_path, transcripts_path):
         return
 
 
-def generate_meta_counts(reference_list, output_prefix):
+def read_gene_counts(reference_list):
     df = pd.read_csv(reference_list, sep='\t', header=None)
     df.columns = ['genome', 'annotation']
 
 
-def generate_gene_counts():
-    pass
+def generate_meta_counts(all_genes, output_prefix):
+    abundances = generate_abundances(len(all_genes))
+    gene_coutns = []
+    for j, gene_names in enumerate(all_genes):
+        counts = generate_gene_counts(len(gene_names))
+        for i, gene_id in enumerate(gene_names):
+            gene_coutns.append((gene_id, counts[i] * abundances[j]))
+
+    scale_factor = 1000000.0 / sum(map(lambda x:x[1], gene_coutns))
+    with open(output_prefix + "counts.tsv", "w") as outf:
+        for gene_info in gene_coutns:
+            outf.write("%s\t%.8f\n" % (gene_info[0], gene_info[1] * scale_factor))
 
 
-def generate_abundances():
-    pass
+def expression_func(x):
+    #  2680.8823734890475, 227926.4856264025,
+    #  1.0, 1.83150924535486
+    a = -2251.914904831915
+    b = 5.8732587449434076e-241
+    c = 563.3187067205479
+    d = 0.0006505959181508507
+    return a + b * numpy.exp(c / x ** d)
+
+
+def generate_gene_counts(total_genes, type=1):
+    if type == 0:
+        nums = numpy.arange(1, total_genes + 1, 1)
+    else:
+        nums = numpy.array([random.random() * 3000 for i in range(total_genes + 1)])
+    tpms = []
+    for i in range(total_genes):
+        tpms.append(0)
+    tpms = expression_func(nums)
+    # fig, ax = plt.subplots()
+    # ax.plot(nums, tpms, label="tpms")
+    return tpms
+
+
+def generate_abundances(genome_count, type=1):
+    genome_count = int(input())
+
+    if type == 0:
+        return numpy.arange(10 / (genome_count + 1), 10, 10 / (genome_count + 1))
+
+    if type == 0:
+        a = -1239
+        b = 942
+        c = 1.5
+        d = 0.4
+    elif type == 2:
+        a = -54798
+        b = 63
+        c = 6
+        d = 0.00005
+    elif type == 3:
+        a = -56
+        b = 29
+        c = 1
+        d = 0.16
+    elif type == 4:
+        a = -0.2
+        b = 0.01
+        c = 10
+        d = 0.13
+    else:
+        a = -50
+        b = 30
+        c = 1
+        d = 0.15
+
+    x = numpy.array([random.random() * 10 for i in range(genome_count + 1)])
+
+    coverage_list = []
+    for i in x:
+        coverage = a + b * numpy.exp(c / i ** d)
+        coverage_list.append(coverage)
+
+    return coverage_list

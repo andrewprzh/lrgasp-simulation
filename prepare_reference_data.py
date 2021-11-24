@@ -282,7 +282,8 @@ def run_pipeline(args):
     random.seed(args.seed)
     if args.reference_list:
         # metagenomic mode
-        combine_references(args.reference_list, args.output)
+        all_genes = combine_references(args.reference_list, args.output)
+        generate_meta_counts(all_genes, args.output)
     else:
         if args.sqanti_prefix is not None:
             novel_annotation = select_sqanti_isoforms(args)
