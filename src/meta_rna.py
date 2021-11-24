@@ -51,11 +51,12 @@ def combine_references(reference_list, output_prefix):  # in 'data' insert your 
             all_genes.append([])
             for annotation_rec in GFF.parse(annotation_path):
                 annotation_id_list.append(annotation_rec.id)
-                if annotation_rec.type == 'gene':
-                    if 'ID' in annotation_rec.qualifiers:
-                        all_genes[-1].append(annotation_rec.qualifiers['ID'])
-                    elif 'gene_id' in annotation_rec.qualifiers:
-                        all_genes[-1].append(annotation_rec.qualifiers['gene_id'])
+                for feature in annotation_rec.features:
+                    if feature.type == 'gene':
+                        if 'ID' in feature.qualifiers:
+                            all_genes[-1].append(feature.qualifiers['ID'])
+                        elif 'gene_id' in feature.qualifiers:
+                            all_genes[-1].append(feature.qualifiers['gene_id'])
 
                 gff_records.append(annotation_rec)
             for i in range(len(annotation_id_list)):
