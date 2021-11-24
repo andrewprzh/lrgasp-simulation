@@ -23,7 +23,7 @@ def combine_references(reference_list, output_prefix):  # in 'data' insert your 
 
     genomes_path = output_prefix + '.genomes.fasta'
     annotations_path = output_prefix + '.annotations.gtf'
-    transcripts_path = output_prefix + '.transcrips.fasta'
+    transcripts_path = output_prefix + '.transcripts.fasta'
     logger.info("Combining annotations and genomes")
     with open(genomes_path, 'a') as genomes_output, open(annotations_path, 'a') as annotations_output:
         for genome in range(len(df['genome'])):
@@ -54,7 +54,15 @@ def combine_references(reference_list, output_prefix):  # in 'data' insert your 
                     annotation_id_list[i] = new_id_map[annotation_id_list[i]]
                     annotation_rec.id = annotation_id_list[i]
             GFF.write(gff_records, annotations_output)
+   
+    with open(annotations_path, "r") as annotation_file:
+        lines = annotation_file.readlines()
 
+    with open(annotations_path, "w") as annotation_file:
+    	for number, line in enumerate(lines):
+            if number not in [0, 1, 2]:
+                annotation_file.write(line)
+                
     extract_transcripts(genomes_path, annotations_path, transcripts_path)
     logger.info("Done.")
 
