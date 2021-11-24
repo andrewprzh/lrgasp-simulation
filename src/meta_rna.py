@@ -27,6 +27,8 @@ def combine_references(reference_list, output_prefix):  # in 'data' insert your 
     annotations_path = output_prefix + '.annotations.gtf'
     transcripts_path = output_prefix + '.transcripts.fasta'
     logger.info("Combining annotations and genomes")
+    open(genomes_path, 'w').close()
+    open(annotations_path, 'w').close()
     with open(genomes_path, 'a') as genomes_output, open(annotations_path, 'a') as annotations_output:
         for genome in range(len(df['genome'])):
             genome_path = df['genome'].iloc[genome]
@@ -54,9 +56,9 @@ def combine_references(reference_list, output_prefix):  # in 'data' insert your 
                 for feature in annotation_rec.features:
                     if feature.type == 'gene':
                         if 'ID' in feature.qualifiers:
-                            all_genes[-1].append(feature.qualifiers['ID'])
+                            all_genes[-1].append(feature.qualifiers['ID'][0])
                         elif 'gene_id' in feature.qualifiers:
-                            all_genes[-1].append(feature.qualifiers['gene_id'])
+                            all_genes[-1].append(feature.qualifiers['gene_id'][0])
 
                 gff_records.append(annotation_rec)
             for i in range(len(annotation_id_list)):
@@ -64,12 +66,12 @@ def combine_references(reference_list, output_prefix):  # in 'data' insert your 
                     annotation_id_list[i] = new_id_map[annotation_id_list[i]]
                     annotation_rec.id = annotation_id_list[i]
             GFF.write(gff_records, annotations_output)
-   
+
     with open(annotations_path, "r") as annotation_file:
         lines = annotation_file.readlines()
 
     with open(annotations_path, "w") as annotation_file:
-    	for number, line in enumerate(lines):
+        for number, line in enumerate(lines):
             if number not in [0, 1, 2]:
                 annotation_file.write(line)
                 
@@ -100,7 +102,10 @@ def generate_meta_counts(all_genes, output_prefix):
             gene_coutns.append((gene_id, counts[i] * abundances[j]))
 
     scale_factor = 1000000.0 / sum(map(lambda x:x[1], gene_coutns))
-    with open(output_prefix + "counts.tsv", "w") as outf:
+    with open(output_prefix + ".abundances.tsv", "w") as outf:
+        for a in abundances:
+            outf.write("%.8f\n" % a)
+    with open(output_prefix + ".counts.tsv", "w") as outf:
         for gene_info in gene_coutns:
             outf.write("%s\t%.8f\n" % (gene_info[0], gene_info[1] * scale_factor))
 
@@ -119,13 +124,14 @@ def generate_gene_counts(total_genes, type=1):
     if type == 0:
         nums = numpy.arange(1, total_genes + 1, 1)
     else:
-        nums = numpy.array([random.random() * 3000 for i in range(total_genes + 1)])
+        nums = numpy.array([random.random() * total_genes / 4 for i in range(total_genes + 1)])
     tpms = []
     for i in range(total_genes):
         tpms.append(0)
     tpms = expression_func(nums)
     # fig, ax = plt.subplots()
     # ax.plot(nums, tpms, label="tpms")
+    tpms = list(map(lambda x: 0.0 if x < 0 else x, tpms))
     return tpms
 
 
@@ -133,7 +139,7 @@ def generate_abundances(genome_count, type=1):
     if type == 0:
         return numpy.arange(10 / (genome_count + 1), 10, 10 / (genome_count + 1))
 
-    if type == 0:
+    if type == 1:
         a = -1239
         b = 942
         c = 1.5
