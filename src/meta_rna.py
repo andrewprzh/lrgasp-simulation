@@ -135,7 +135,7 @@ def generate_gene_counts(total_genes, type=1):
     return tpms
 
 
-def generate_abundances(genome_count, type=3):
+def generate_abundances(genome_count, type=4):
     if type == 0:
         return numpy.arange(10 / (genome_count + 1), 10, 10 / (genome_count + 1))
 

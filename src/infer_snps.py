@@ -77,7 +77,7 @@ def insert_mutations(args, genome_file, out_fasta):
             nucls.remove(dna_arr[i])
             subs = list(nucls)[random.randint(0, 2)]
             alt_rec = vcf.model._Substitution(subs)
-            record = vcf.model._Record(contig, i, '.', dna_arr[i], [alt_rec],
+            record = vcf.model._Record(contig, i+1, '.', dna_arr[i], [alt_rec],
                                        100, 'PASS', 0, 'GT:GQ:DP:AF', '0/1:6:4:0.2500')
             writer.write_record(record)
             dna_arr[i] = subs

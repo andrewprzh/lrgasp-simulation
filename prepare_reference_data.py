@@ -12,6 +12,7 @@ import logging
 import shutil
 import random
 import gffutils
+import numpy.random
 from Bio import SeqIO
 import argparse
 from collections import defaultdict
@@ -280,6 +281,7 @@ def mutate_genome(args):
 def run_pipeline(args):
     logger.info(" === LRGASP reference data preparation started === ")
     random.seed(args.seed)
+    numpy.random.seed(args.seed)
     if args.reference_list:
         # metagenomic mode
         all_genes = combine_references(args.reference_list, args.output)
