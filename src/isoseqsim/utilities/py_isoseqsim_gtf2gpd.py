@@ -16,10 +16,10 @@ def main(args):
 def extract_iso_info(gtf_file):  # extract the exonic regions for each isoform
     dic_iso_info = {}
     for line in gtf_file:
-        if line[0] != "#" and line.strip().split("\t")[2] == "exon":
+        if line[0] != "#" and line.strip().split("\t")[2] == "CDS":
             chr, source, feature, start, end, score, strand, frame, group = line.rstrip("\n").split("\t")
-            gene_id = group.split("gene_id \"")[1].split("\";")[0]
-            transcript_id = group.split("transcript_id \"")[1].split("\";")[0]
+            gene_id = group.split("Parent=")[1].split(";")[0]
+            transcript_id = group.split("Parent=")[1].split(";")[0]
             chr_strand = chr + "&" + strand
             if chr_strand not in dic_iso_info.keys():
                 dic_iso_info[chr_strand] = {}
