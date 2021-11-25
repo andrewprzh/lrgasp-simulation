@@ -23,8 +23,8 @@ def combine_references(reference_list, output_prefix):  # in 'data' insert your 
     new_id_map = {}
     all_genes = []
 
-    genomes_path = output_prefix + '.genomes.fasta'
-    annotations_path = output_prefix + '.annotations.gtf'
+    genomes_path = output_prefix + '.genome.fasta'
+    annotations_path = output_prefix + '.annotation.gtf'
     transcripts_path = output_prefix + '.transcripts.fasta'
     logger.info("Combining annotations and genomes")
     open(genomes_path, 'w').close()
@@ -107,7 +107,7 @@ def generate_meta_counts(all_genes, output_prefix):
             outf.write("%.8f\n" % a)
     with open(output_prefix + ".counts.tsv", "w") as outf:
         for gene_info in gene_coutns:
-            outf.write("%s\t%.8f\n" % (gene_info[0], gene_info[1] * scale_factor))
+            outf.write("%s\t0\t%.8f\n" % (gene_info[0], gene_info[1] * scale_factor))
 
 
 def expression_func(x):
@@ -135,7 +135,7 @@ def generate_gene_counts(total_genes, type=1):
     return tpms
 
 
-def generate_abundances(genome_count, type=1):
+def generate_abundances(genome_count, type=3):
     if type == 0:
         return numpy.arange(10 / (genome_count + 1), 10, 10 / (genome_count + 1))
 

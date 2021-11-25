@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import copy
 import os.path
 
 from Bio import SeqIO
@@ -10,6 +11,8 @@ import vcf
 from time import perf_counter
 import sys
 import logging
+import copy
+
 
 logger = logging.getLogger('LRGASP')
 
@@ -70,7 +73,7 @@ def insert_mutations(args, genome_file, out_fasta):
             if dna_arr[i] not in NUCL_ALPHABET:
                 continue
             snp_count += 1
-            nucls = NUCL_ALPHABET
+            nucls = copy.copy(NUCL_ALPHABET)
             nucls.remove(dna_arr[i])
             subs = list(nucls)[random.randint(0, 2)]
             alt_rec = vcf.model._Substitution(subs)

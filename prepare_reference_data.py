@@ -267,10 +267,10 @@ def set_logger(logger_instance):
 
 
 def mutate_genome(args):
-    orig_genome_path = args.output + '.genomes.fasta'
-    orig_annotation_path = args.output + '.annotations.gtf'
-    genome_path = args.output + '.mutated.genomes.fasta'
-    annotation_path = args.output + '.mutated.annotations.gtf'
+    orig_genome_path = args.output + '.genome.fasta'
+    orig_annotation_path = args.output + '.annotation.gtf'
+    genome_path = args.output + '.mutated.genome.fasta'
+    annotation_path = args.output + '.mutated.annotation.gtf'
     transcripts_path = args.output + '.mutated.transcrips.fasta'
     insert_mutations(args, orig_genome_path, genome_path)
     shutil.copyfile(orig_annotation_path, annotation_path)
