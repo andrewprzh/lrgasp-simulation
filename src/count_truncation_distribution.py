@@ -16,6 +16,15 @@ def main():
         left_truncations.append(float(alignment.reference_start) / float(transcript_len))
         right_truncations.append(float(transcript_len - alignment.reference_end) / float(transcript_len))
 
+    coverage_hist = [0] * 100
+    for i in range(len(left_truncations)):
+        for pos in range(int(round(left_truncations[i] * 100)), int(round((1 - right_truncations[i]) * 100))):
+            coverage_hist[pos] += 1
+
+    print("Coverage hist")
+    print("\t".join(map(str, coverage_hist)))
+    print("")
+
     bins = [0.0] + [0.005 + 0.01 * i for i in range(0,100)] + [1.0]
     print(len(bins), bins)
     res_left = np.histogram(left_truncations, bins=bins, density=True)
