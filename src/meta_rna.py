@@ -124,7 +124,7 @@ def generate_gene_counts(total_genes, type=1):
     if type == 0:
         nums = numpy.arange(1, total_genes + 1, 1)
     else:
-        nums = numpy.array([random.random() * total_genes / 4 for i in range(total_genes + 1)])
+        nums = numpy.array([random.random() * total_genes / 6 for i in range(total_genes + 1)])
     tpms = []
     for i in range(total_genes):
         tpms.append(0)
