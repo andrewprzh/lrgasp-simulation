@@ -39,6 +39,7 @@ except ImportError:
 import mixed_model as mm
 import norm_distr as nd
 import math
+from Bio import SeqIO
 
 PYTHON_VERSION = sys.version_info
 VERSION = "3.0.0"
@@ -51,6 +52,7 @@ BASES = ['A', 'T', 'C', 'G']
 
 def select_ref_transcript(input_dict):
     length = 0
+    #print(input_dict)
     while True:
         p = random.random()
         for key, val in input_dict.items():
@@ -312,22 +314,19 @@ def read_profile(ref_g, number_list, model_prefix, per, mode, strandness, ref_t=
                             if seq_len[species][chr_name.split(".")[0]] > max_chrom[species]:
                                 max_chrom[species] = seq_len[species][chr_name.split(".")[0]]
             else:
-                with open(fq_path, 'r') as infile:
-                    for seqN, seqS, seqQ in readfq(infile):
-                        info = re.split(r'[_\s]\s*', seqN)
-                        chr_name = "-".join(info)
-                        seq_dict[species][chr_name.split(".")[0]] = seqS
-                        seq_len[species][chr_name.split(".")[0]] = len(seqS)
-                        dict_dna_type[species][chr_name.split(".")[0]] = "linear"  # linear as default
-                        if len(seqS) > max_chrom[species]:
-                            max_chrom[species] = len(seqS)
+                for record in SeqIO.parse(fq_path, 'fasta'):
+                    seqS = str(record.seq)
+                    seq_dict[species][record.id] = seqS
+                    seq_len[species][record.id] = len(seqS)
+                    dict_dna_type[species][record.id] = "linear"  # linear as default
+                    if len(seqS) > max_chrom[species]:
+                        max_chrom[species] = len(seqS)
 
         with open(dna_type, 'r') as dna_type_list:
             for line in dna_type_list.readlines():
                 fields = line.split("\t")
                 species = fields[0]
-                chr = re.split(r'[_\s]\s*', fields[1].partition(" ")[0])
-                chr_name = "-".join(chr)
+                chr_name = fields[1].partition(" ")[0]
                 type = fields[2].strip("\n")
 
                 if species not in ref:
@@ -336,14 +335,12 @@ def read_profile(ref_g, number_list, model_prefix, per, mode, strandness, ref_t=
                 dict_dna_type[species][chr_name.split(".")[0]] = type
     else:
         max_chrom = 0
-        with open(ref, 'r') as infile:
-            for seqN, seqS, seqQ in readfq(infile):
-                info = re.split(r'[_\s]\s*', seqN)
-                chr_name = "-".join(info)
-                seq_dict[chr_name.split(".")[0]] = seqS
-                seq_len[chr_name.split(".")[0]] = len(seqS)
-                if len(seqS) > max_chrom:
-                    max_chrom = len(seqS)
+        for record in SeqIO.parse(ref, 'fasta'):
+            seqS = str(record.seq)
+            seq_dict[record.id] = seqS
+            seq_len[record.id] = len(seqS)
+            if len(seqS) > max_chrom:
+                max_chrom = len(seqS)
 
     # Special files for each mode
     if mode == "genome":
@@ -384,11 +381,13 @@ def read_profile(ref_g, number_list, model_prefix, per, mode, strandness, ref_t=
             header = exp_file.readline()
             for line in exp_file:
                 parts = line.split("\t")
-                transcript_id = parts[0].split(".")[0]
+                transcript_id = parts[0]
                 tpm = float(parts[2])
                 if  tpm > 0:
                     dict_exp[transcript_id] = tpm
         # create the ecdf dict considering the expression profiles
+        #print(dict_exp)
+        #print(seq_len)
         ecdf_dict_ref_exp = make_cdf(dict_exp, seq_len)
 
         if model_ir:
