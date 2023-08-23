@@ -64,6 +64,21 @@ def select_ref_transcript(input_dict):
     return val[0], length
 
 
+def select_ref_transcript_fast(cumulative_tpm, sorted_ids):
+    p = random.random()
+    print(p)
+    s = len(cumulative_tpm) - 1
+    ind = s // 2
+    current_step = s // 2
+    while not (p >= cumulative_tpm[ind] and p < cumulative_tpm[ind+1]):
+        current_step = max(1, current_step // 2)
+        if p < cumulative_tpm[ind]:
+            ind -= current_step
+        else:
+            ind += current_step
+    return sorted_ids[ind]
+
+
 def list_to_range(input_list, min_l):
     l = [min_l]
     l.extend(input_list)
@@ -97,6 +112,24 @@ def make_cdf(dict_exp, dict_len):
         # ecdf_dict[cdf_range] = dict_len[sorted_value_list[i][0]]
 
     return ecdf_dict
+
+
+def make_cdf_fast(dict_exp, dict_len):
+    sum_exp = 0
+    list_value = []
+    for item in dict_exp:
+        if item in dict_len:
+            sum_exp += dict_exp[item]
+    for item in dict_exp:
+        if item in dict_len:
+            value = dict_exp[item] / float(sum_exp)
+            list_value.append((item, value))
+
+    sorted_value_list = sorted(list_value, key=lambda x: x[1])
+    sorted_only_values = [x[1] for x in sorted_value_list]
+    list_cdf = np.cumsum(sorted_only_values)
+    sorted_ids = [x[0] for x in sorted_value_list]
+    return list_cdf, sorted_ids
 
 
 def ref_len_from_structure(input):
@@ -267,7 +300,7 @@ def read_profile(ref_g, number_list, model_prefix, per, mode, strandness, ref_t=
                 genome = fields[1].strip("\n")
                 ref[species] = genome
     else:
-        global dict_exp, ecdf_dict_ref_exp
+        global dict_exp, list_cdf, sorted_ids ,seq_len
         ref = ref_t
 
     if strandness is None:
@@ -388,7 +421,7 @@ def read_profile(ref_g, number_list, model_prefix, per, mode, strandness, ref_t=
         # create the ecdf dict considering the expression profiles
         #print(dict_exp)
         #print(seq_len)
-        ecdf_dict_ref_exp = make_cdf(dict_exp, seq_len)
+        list_cdf, sorted_ids = make_cdf_fast(dict_exp, seq_len)
 
         if model_ir:
             global genome_fai, IR_markov_model, dict_ref_structure
@@ -1009,7 +1042,8 @@ def simulation_aligned_transcriptome(model_ir, out_reads, out_error, kmer_bias, 
     remaining_reads = 0
     while remaining_reads < num_simulate:
         while True:
-            ref_trx, ref_trx_len = select_ref_transcript(ecdf_dict_ref_exp)
+            ref_trx = select_ref_transcript_fast(list_cdf, sorted_ids)
+            ref_trx_len = seq_len[ref_trx]
             if polya and ref_trx in trx_with_polya:
                 trx_has_polya = True
             else:
