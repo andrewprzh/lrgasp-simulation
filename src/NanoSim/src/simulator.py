@@ -66,7 +66,6 @@ def select_ref_transcript(input_dict):
 
 def select_ref_transcript_fast(cumulative_tpm, sorted_ids):
     p = random.random()
-    print(p)
     s = len(cumulative_tpm) - 1
     ind = s // 2
     current_step = s // 2
@@ -120,15 +119,17 @@ def make_cdf_fast(dict_exp, dict_len):
     for item in dict_exp:
         if item in dict_len:
             sum_exp += dict_exp[item]
+    current_val = 0
     for item in dict_exp:
         if item in dict_len:
-            value = dict_exp[item] / float(sum_exp)
-            list_value.append((item, value))
+            list_value.append((item, current_val))
+            current_val = dict_exp[item] / float(sum_exp)
 
     sorted_value_list = sorted(list_value, key=lambda x: x[1])
     sorted_only_values = [x[1] for x in sorted_value_list]
-    list_cdf = np.cumsum(sorted_only_values)
-    sorted_ids = [x[0] for x in sorted_value_list]
+    list_cdf = list(np.cumsum(sorted_only_values))
+    list_cdf.append(1.00001)
+    sorted_ids = [x[0] for x in sorted_value_list] + [""]
     return list_cdf, sorted_ids
 
 
@@ -422,6 +423,9 @@ def read_profile(ref_g, number_list, model_prefix, per, mode, strandness, ref_t=
         #print(dict_exp)
         #print(seq_len)
         list_cdf, sorted_ids = make_cdf_fast(dict_exp, seq_len)
+        assert len(list_cdf) == len(sorted_ids)
+        assert list_cdf[0] == 0
+        assert list_cdf[-1] >= 1.0
 
         if model_ir:
             global genome_fai, IR_markov_model, dict_ref_structure
