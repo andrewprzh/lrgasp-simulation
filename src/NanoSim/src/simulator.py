@@ -1175,7 +1175,7 @@ def simulation_aligned_transcriptome(model_ir, out_reads, out_error, kmer_bias, 
                 polya_len = int(scipy.stats.expon.rvs(loc=2.0, scale=2.409858743694814))
             else:  # guppy
                 polya_len = int(scipy.stats.expon.rvs(loc=2.0, scale=4.168299657168961))
-            read_mutated += "A" * polya_len
+            read_mutated += "A" * (polya_len + 10)
         else:
             polya_len = 0
 
