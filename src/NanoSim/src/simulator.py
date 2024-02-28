@@ -2288,7 +2288,7 @@ def main():
         sys.stdout.flush()
         max_len = min(max_len, max_chrom)
         simulation(args.mode, out, dna_type, perfect, kmer_bias, basecaller, read_type, max_len, min_len, num_threads,
-                   fastq, None, None, model_ir, uracil, polya, truncation_mode)
+                   fastq, None, None, model_ir, uracil, polya, truncation_mode=truncation_mode)
 
     elif args.mode == "metagenome":
         genome_list = args.genome_list
