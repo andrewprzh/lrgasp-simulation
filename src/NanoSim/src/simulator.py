@@ -1106,7 +1106,7 @@ def simulation_aligned_transcriptome(model_ir, out_reads, out_error, kmer_bias, 
                                                                           fastq)
 
             if middle_ref > ref_trx_len:
-                continue
+                pass #continue
 
             with total_simulated.get_lock():
                 sequence_index = total_simulated.value
