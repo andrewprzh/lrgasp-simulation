@@ -486,7 +486,7 @@ def read_profile(ref_g, number_list, model_prefix, per, mode, strandness, ref_t=
             trx_with_polya = {}
             with open(polya, "r") as trx_list:
                 for line in trx_list.readlines():
-                    transcript_id = line.strip().split(".")[0]
+                    transcript_id = line.strip().split("\t")[0]
                     trx_with_polya[transcript_id] = 0
 
     if per:  # if parameter perfect is used, all reads should be aligned, number_aligned equals total number of reads
