@@ -1768,17 +1768,21 @@ def error_list(m_ref, m_model, m_ht_list, error_p, trans_p, fastq):
 
         if error == "mis":
             step = mm.pois_geom(error_p[error][0], error_p[error][2], error_p[error][3])
+            if pos + step > middle_ref:
+                continue
         elif error == "ins":
             step = mm.wei_geom(error_p[error][0], error_p[error][1], error_p[error][2], error_p[error][3])
             l_new += step
         else:
             step = mm.wei_geom(error_p[error][0], error_p[error][1], error_p[error][2], error_p[error][3])
+            if pos + step > middle_ref:
+                continue
             l_new -= step
 
         if error != "ins":
             e_dict[pos] = [error, step]
             pos += step
-            if pos >= middle_ref:
+            if pos > middle_ref:
                 l_new += pos - middle_ref
                 middle_ref = pos
         else:
@@ -1803,6 +1807,9 @@ def error_list(m_ref, m_model, m_ht_list, error_p, trans_p, fastq):
         if prev_match == 0 and step == 0:
             step = 1
 
+        if pos + step > middle_ref:
+            step = middle_ref - pos
+
         prev_match = step
 
         if fastq:
@@ -1816,6 +1823,7 @@ def error_list(m_ref, m_model, m_ht_list, error_p, trans_p, fastq):
         if prev_match == 0:
             prev_error += "0"
 
+    assert middle_ref == m_ref
     return l_new, middle_ref, e_dict, e_count
 
 
