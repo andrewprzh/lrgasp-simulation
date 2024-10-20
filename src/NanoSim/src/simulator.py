@@ -1611,10 +1611,14 @@ def reverse_complement(seq):
 
 def extract_read_trx(key, length, trx_has_polya, ref_pos=-1, buffer=10):
     # buffer: if the extracted read is within 10 base to the reference 3' end, it's considered as reaching to the end
-    # TODO change the random into something truer
     if ref_pos == -1:
         ref_pos = random.randint(0, seq_len[key] - length)
-    new_read = seq_dict[key][ref_pos: ref_pos + length]
+    template = seq_dict[key]
+    # if ref_pos + length > len(template):
+    #    ref_pos = len(template) - length
+    assert ref_pos + length <= len(template)
+    new_read = template[ref_pos: ref_pos + length]
+
     retain_polya = False
     if trx_has_polya and ref_pos + length + buffer >= seq_len[key]:  # Read reaches end of transcript
         retain_polya = True
@@ -1927,6 +1931,7 @@ def mutate_read(read, read_name, error_log, e_dict, e_count, basecaller, read_ty
             quals.append(match_quals.pop())
 
     quals.reverse()
+    assert len(quals) == len(read)
     return read, quals
 
 
@@ -2209,6 +2214,9 @@ def main():
         max_len = args.max_len
         min_len = args.min_len
         kmer_bias = args.KmerBias
+        if args.seed:
+            random.seed(int(args.seed))
+            np.random.seed(int(args.seed))
         basecaller = args.basecaller
         read_type = args.read_type
         strandness = args.strandness
