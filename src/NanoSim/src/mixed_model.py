@@ -106,7 +106,7 @@ def trunc_lognorm_rvs(error_type, read_type, basecaller, n):
         else:
             probs = ONT_R10_PHRED_PROBABILITIES[error_type]
 
-    return list(np.random.choice(PHRED, size=n, p=probs))
+    return np.random.choice(PHRED, size=n, p=probs)
 
 
 def trunc_lognorm_rvs_old(error_type, read_type, basecaller, n):
