@@ -1077,7 +1077,7 @@ def calculate_aligned_length(ref_len, truncation_mode='ont_r9'):
     pro_list = None
     tlens = list(sorted(truncation_dict.keys()))
     for tlen in tlens:
-        if ref_len <= truncation_dict:
+        if ref_len <= tlen:
             pro_list = truncation_dict[tlen]
     if not pro_list:
         pro_list = truncation_dict[tlens[-1]]
