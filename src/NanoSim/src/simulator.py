@@ -991,7 +991,7 @@ def simulation_aligned_metagenome(min_l, max_l, median_l, sd_l, out_reads, out_e
 
 
 
-TRUNCATION_MODES = ['ont_r9', 'ont_spatial', 'pacbio', 'none', 'custom']
+TRUNCATION_MODES = ['ont_r9', 'ont_spatial', 'pacbio', 'none', 'custom', 'curio']
 TRUNCATION_DICT5 = {
     # pacbio sequel
     'pacbio': [0.41910000000000014, 0.01, 0.0143, 0.0099, 0.0092, 0.008, 0.0092, 0.0065, 0.0082, 0.0075, 0.0074, 0.0065, 0.0064, 0.0077, 0.0094, 0.0068, 0.0084, 0.009, 0.0083, 0.0077, 0.0065, 0.0066, 0.0069, 0.0139, 0.0076, 0.008, 0.0074, 0.0071, 0.0094, 0.0107, 0.0096, 0.0105, 0.0094, 0.0082, 0.0089, 0.0065, 0.0058, 0.0066, 0.0059, 0.0053, 0.0056, 0.0063, 0.0078, 0.0068, 0.0058, 0.0062, 0.0068, 0.0066, 0.0062, 0.0055, 0.0051, 0.0058, 0.0043, 0.0052, 0.0053, 0.0055, 0.0052, 0.0049, 0.0041, 0.005, 0.0044, 0.0043, 0.0054, 0.0049, 0.0041, 0.0046, 0.0042, 0.005, 0.0041, 0.0053, 0.0039, 0.0045, 0.0054, 0.0039, 0.0042, 0.0039, 0.0035, 0.0032, 0.0034, 0.0036, 0.0033, 0.0031, 0.003, 0.0033, 0.0037, 0.0028, 0.0029, 0.0022, 0.0033, 0.0027, 0.0029, 0.0022, 0.0024, 0.0023, 0.0045, 0.0023, 0.0026, 0.0024, 0.0026, 0.0029, 0.0025],
@@ -1018,15 +1018,8 @@ TRUNCATION_DICT3 = {
 }
 
 def calculate_aligned_length(ref_len, truncation_mode='ont_r9'):
-    bp5_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-                29, 30, 31,  32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53,
-                54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78,
-                79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100]
-    bp3_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
-                28,
-                29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54,
-                55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
-                81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100]
+    bp5_list = list(range(101))
+    bp3_list = list(range(101))
     pro5_list = TRUNCATION_DICT5[truncation_mode]
     pro3_list = TRUNCATION_DICT3[truncation_mode]
     del5 = int(np.random.choice(bp5_list, p=pro5_list) * ref_len / 100.0)
@@ -2042,7 +2035,7 @@ def main():
                           default=False)
     parser_t.add_argument('--polya', help='Simulate polyA tails for given list of transcripts', default=None)
     parser_t.add_argument('--truncation_mode', help='truncation mode: none, pacbio, ont_r9, ont_spatial, curio',
-                          default='ont_r9', choices=['none', 'pacbio', 'ont_r9', 'ont_spatial', 'curio', 'custom'])
+                          default='ont_r9', choices=TRUNCATION_MODES)
 
     parser_t.add_argument('--fastq', help='Output fastq files instead of fasta files', action='store_true',
                           default=False)
