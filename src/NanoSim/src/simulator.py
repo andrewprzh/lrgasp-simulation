@@ -1017,7 +1017,8 @@ TRUNCATION_DICT3 = {
     'custom' : [1.0] + [0] * 100
 }
 
-def calculate_aligned_length(ref_len, truncation_mode='ont_r9'):
+
+def calculate_aligned_length_simple(ref_len, truncation_mode='ont_r9'):
     bp5_list = list(range(101))
     bp3_list = list(range(101))
     pro5_list = TRUNCATION_DICT5[truncation_mode]
@@ -1028,6 +1029,43 @@ def calculate_aligned_length(ref_len, truncation_mode='ont_r9'):
     start_pos = max(0, min(del5 - 1, ref_len - new_len - 1))
 #    new_len = min(50, ref_len)
 #    start_pos = max(0, ref_len - new_len)
+    return new_len, start_pos
+
+
+TR3_STEPS = 100
+TR5_STEPS = 10
+TR3 = list(range(TR3_STEPS))
+TR5 = list(range(TR5_STEPS))
+TR_PERC3 = [float(x)/TR3_STEPS for x in TR3]
+TR_PERC5 = [float(x)/TR5_STEPS for x in TR5]
+
+TRUNCATION_DICT = {
+    'none': {math.inf: ([1.0] + [0] * (TR3_STEPS - 1), [[1.0] + [0] * (TR5_STEPS - 1) for _ in range(TR3_STEPS)])},
+    'pacbio': None,
+    'ont_spatial': None,
+    'ont_r9': None,
+}
+
+def calculate_aligned_length(ref_len, truncation_mode='ont_r9'):
+    truncation_dict = TRUNCATION_DICT[truncation_mode]
+    pro_list = None
+    tlens = list(sorted(truncation_dict.keys()))
+    for tlen in tlens:
+        if ref_len <= truncation_dict:
+            pro_list = truncation_dict[tlen]
+    if not pro_list:
+        pro_list = truncation_dict[tlens[-1]]
+
+    pro3_list = pro_list[0]
+    tr3_index = np.random.choice(TR3, p=pro3_list)
+    del3 = int(ref_len * TR_PERC3[tr3_index])
+    pro5_lists = pro_list[1]
+    tr5_index = np.random.choice(TR5, p=pro5_lists[tr3_index])
+    del5 = int(ref_len * TR_PERC5[tr5_index])
+
+    new_len = max(min(50, ref_len - 1), ref_len - del3 - del5 - 1)
+    start_pos = max(0, min(del5, ref_len - new_len - 1))
+
     return new_len, start_pos
 
 
