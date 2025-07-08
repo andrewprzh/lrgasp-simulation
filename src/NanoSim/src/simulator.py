@@ -14,6 +14,7 @@ from textwrap import dedent
 import sys
 import os
 import HTSeq
+import numpy.random
 import pysam
 import random
 import re
@@ -1262,10 +1263,11 @@ def simulation_aligned_transcriptome(model_ir, out_reads, out_error, kmer_bias, 
                 read_mutated, base_quals = mutate_homo(read_mutated, base_quals, kmer_bias, basecaller, read_type)
 
         if retain_polya:
-            if basecaller == "albacore":
-                polya_len = int(scipy.stats.expon.rvs(loc=2.0, scale=2.409858743694814))
-            else:  # guppy
-                polya_len = int(scipy.stats.expon.rvs(loc=2.0, scale=4.168299657168961))
+            # if basecaller == "albacore":
+            #    polya_len = int(scipy.stats.expon.rvs(loc=2.0, scale=2.409858743694814))
+            # else:  # guppy
+            #    polya_len = int(scipy.stats.expon.rvs(loc=2.0, scale=4.168299657168961))
+            polya_len = numpy.random.normal(20, 10)
             read_mutated += "A" * (polya_len + 10)
         else:
             polya_len = 0
