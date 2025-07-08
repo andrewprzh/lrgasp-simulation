@@ -25,7 +25,7 @@ from time import strftime
 from urllib.request import Request, urlopen
 from gzip import GzipFile
 import numpy as np
-import scipy.stats
+#import scipy.stats
 
 if sys.version_info[0] < 3:
     from string import maketrans
@@ -1267,7 +1267,7 @@ def simulation_aligned_transcriptome(model_ir, out_reads, out_error, kmer_bias, 
             #    polya_len = int(scipy.stats.expon.rvs(loc=2.0, scale=2.409858743694814))
             # else:  # guppy
             #    polya_len = int(scipy.stats.expon.rvs(loc=2.0, scale=4.168299657168961))
-            polya_len = numpy.random.normal(20, 10)
+            polya_len = int(np.random.normal(20, 10))
             read_mutated += "A" * (polya_len + 10)
         else:
             polya_len = 0
